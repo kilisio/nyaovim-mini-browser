@@ -52,15 +52,28 @@
         line-height: 24px;
       }
     </style>
+    
 
     <div id="mini-browser-body">
-      <div id="mini-browser-title-bar">
-        <div class="browser-ui-button" id="mini-browser-back-btn"><i class="fa fa-arrow-left"></i></div>
-        <div class="browser-ui-button" id="mini-browser-forward-btn"><i class="fa fa-arrow-right"></i></div>
-        <div id="mini-browser-title"></div>
-        <div class="browser-ui-button" id="mini-browser-close-btn"><i class="fa fa-times"></i></div>
-      </div>
-      <webview id="mini-browser-view" autosize="on"></webview>
+
+<!--
+        <div id="mini-browser-side-bar"> 
+            <div class="browser-ui-button" id="split"><i class="fa fa-columns"></i></div>
+        </div>
+-->     
+        
+        <div id="mini-browser-title-bar">
+<!--            
+            <div class="browser-ui-button" id="maximize"><i class="fa fa-square-o"></i></div>
+            <div class="browser-ui-button" id="mini-browser-close-btn"><i class="fa fa-times"></i></div>
+-->    
+            <div class="browser-ui-button" id="split"><i class="fa fa-columns"></i></div>
+            <div class="browser-ui-button" id="mini-browser-back-btn"><i class="fa fa-arrow-left"></i></div>
+            <div class="browser-ui-button" id="mini-browser-forward-btn"><i class="fa fa-arrow-right"></i></div>
+            <div id="mini-browser-title"></div>
+            <div class="browser-ui-button" id="minimize"><i class="fa fa-minus"></i></div>
+        </div>
+      <webview disablewebsecurity allowpopups id="mini-browser-view" autosize="on"></webview>
     </div>
   </template>
 </dom-module>
@@ -82,8 +95,8 @@
         value: false
       },
       width: {
-        type: Number,
-        value: 360    // Nexus5 width
+        type: Array,
+        value: [35, 1366, 1200]    // Nexus5 width
       },
       useragent: {
         type: String,
@@ -102,13 +115,30 @@
       this.$['mini-browser-forward-btn'].onclick = () => {
         this.browser.goForward();
       };
-      this.$['mini-browser-close-btn'].onclick = () => {
+      
+/*    
+    this.$['mini-browser-close-btn'].onclick = () => {
         this.browser.src = '';
         this.close();
       };
-      this.body.style.width = this.width + 'px';
+*/
+
+      this.$['minimize'].onclick = () => {
+        this.min();
+      };
+
+      this.$['split'].onclick = () => {
+        this.split();
+      };
+/*
+      this.$['maximize'].onclick = () => {
+        this.max();
+      };
+*/
+     //this.body.style.width = this.width[1] + 'px';
+
       this.browser.useragent = this.useragent;
-      this.browser.src = this.url;
+      this.browser.src = '';
       this.browser.addEventListener('dom-ready', () => {
         this.title_text.textContent = this.browser.getTitle();
       });
@@ -154,7 +184,7 @@
               })()`
             );
             break;
-          case 'x':
+          case 'y':
             if (e.ctrlKey) {
               this.close();
             }
@@ -169,17 +199,21 @@
               this.browser.goBack();
             }
             break;
-          case 'r':
-            if (e.ctrlKey) {
-              this.browser.reload();
-            }
-            break;
+/*
           case 'i':
-            if (e.ctrlKey && e.shiftKey) {
-              this.browser.openDevTools();
+            if (e.ctrlKey) {
             }
             break;
-          default:
+          case 'o':
+            if (e.ctrlKey) {
+            }
+            break;
+          case 'p':
+            if (e.ctrlKey) {
+            }
+            break;
+*/            
+            default:
             break;
         }
       });
@@ -220,9 +254,43 @@
     },
 
     open(url, focus) {
-      this.browser.src = url;
-      this.show(focus);
+        if(this.visible){
+            this.close();
+            this.body.style.width = '0px';
+        }
+        this.body.style.width = this.width[1] + 'px';
+        this.browser.src = url;
+        this.show(focus);
+        
     },
+
+    min (url, focus){
+        if(this.visible){
+            this.close();
+        }
+        this.body.style.width = this.width[0] + 'px';
+        this.browser.src = url;
+        this.show(focus);
+    },
+
+    split (url, focus){
+        if(this.visible){
+            this.close();
+        }
+        this.body.style.width = this.width[1] + 'px';
+        this.browser.src = url;
+        this.show(focus);
+    },
+
+    max (url, focus){
+        if(this.visible){
+            this.close();
+        }
+        this.body.style.width = this.width[2] + 'px';
+        this.browser.src = url;
+        this.show(focus);
+    },
+
 
     close() {
       if (this.visible) {
